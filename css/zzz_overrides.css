@@ -1,0 +1,15 @@
+.toc ul, ol {
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+
+img {
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+    max-width: 80%;
+}
+
+code {
+    color: #d11;
+}

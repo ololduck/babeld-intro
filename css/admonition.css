@@ -1,0 +1,16 @@
+.admonition {
+    padding-right: 10px;
+    padding-left: 10px;
+    margin-bottom: 5px;
+    border-top: solid black 1px;
+    border-bottom: solid black 1px;
+    background-color: #ddd;
+}
+.admonition-title {
+    margin-top: 3px;
+    font-size: 1.2em;
+}
+.important {
+    border-color: #d22;
+    background-color: #d77;
+}
