@@ -1,4 +1,6 @@
 graph g {
+    Internet [shape="parallelogram"];
+    Internet -- A;
     A -- B;
     A -- C;
     B -- C;
