@@ -7,7 +7,7 @@ js         := $(wildcard js/*.js)
 
 # options
 cc         := markdown_py
-exts       := $(addprefix -x ,extra admonition codehilite headerid nl2br\
+exts       := $(addprefix -x ,extra admonition codehilite headerid \
 	                          sane_lists toc)
 ccopts     := $(exts)
 

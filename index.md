@@ -23,7 +23,7 @@ différentes stations, qu'elles soient sans fils ou câblées. Ainsi, les tables
 routages de chaque station sont tenues à jour, avec une métrique adaptée au coût
 de la liaison.
 
-Babel est un protocole de routage pro-actif à vecteur de distance, comme OSLR,
+Babel est un protocole de routage pro actif à vecteur de distance, comme OSLR,
 mais avec des capacités réactives, comme AODV (Il va trouver une route inconnue
 très rapidement, même si non optimale. Elle sera optimisée par la suite). Il est
 également conçu pour fonctionner aussi bien sur IPv4 que IPv6.
@@ -49,8 +49,8 @@ La machine `A` disposera de deux interfaces dont une connectée à internet,
 l'autre étant utilisée pour le réseau ad-hoc. Les deux autres machines n'ont
 besoin que d'une interface.
 
-Voici un schéma représentant ce réseau: ![topologie du réseau
-étudié](topologie.png)
+Voici un schéma représentant ce réseau:
+![topologie du réseau étudié](topologie.png)
 
 Babel s'occupe de la partie routage, mais pas de la partie adressage IP des
 stations. Pour ce faire, un protocole compagnon a été développé (avec son
@@ -65,17 +65,39 @@ allons utiliser `ifconfig` et `iwconfig`. Dans un premier temps, nous
 utiliserons une configuration IP manuelle.  <!-- TODO: réécrire ça avec iw et ip
 -->
 
+
+
 Pour commencer, nous allons configurer les interfaces participant au mesh sur
 les stations `A`, `B` et `C`:
 
-    iwconfig wlan0 mode ad-hoc essid babel-mesh
-    iwconfig wlan0 channel 1 ap ca:fe:ca:fe:ca:fe
+```bash
+ifconfig wlan0 down
+iwconfig wlan0 mode ad-hoc essid babel-mesh
+iwconfig wlan0 channel 1 ap ca:fe:ca:fe:ca:fe
+```
 
 Remarquons l'usage d'`ap ca:fe:ca:fe:ca:fe` afin de définir la cellule que nous
 souhaitons rejoindre. Cela permet de s'assurer aisément que deux stations soient
 bien dans la même cellule.
 
-Après avoir vérifié que les trois interfaces se situent dans la même cellule, 
+Après avoir vérifié que les trois interfaces se situent dans la même cellule,
+nous allons pouvoir configurer les addresses IP. La commande `ifconfig` permet
+de donner une addresse à une interface, avec la syntaxe suivante: `ifconfig
+wlan0 <ip>/<masque>`.
+
+- `A`: `192.168.0.129/25`
+- `B`: `192.168.0.130/25`
+- `C`: `192.168.0.131/25`
+
+Enfin, nous allons pouvoir rallumer les interfaces: `ifconfig wlan0 up`
+
+À ce stade, nous allons pouvoir lancer babel et observer les tables de routage
+se remplir. Pour ce faire, il est intéressant d'utiliser un multiplexeur de
+terminal, comme [`tmux`][2] ou [`screen`][3]. Notons que la commande `watch -d`
+permet de surligner les différences entre deux exécutions de la commande passée
+en paramètre. Il est ainsi recommandé de surveiller au moins la commande `ip r`,
+qui affiche les routes, ainsi que leurs états. `ip a s wlan0` affiche des
+détails sur l'interface.
 
 
 <!-- footer -->
@@ -85,3 +107,8 @@ Babel est capable d'utiliser deux interfaces pour communiquer avec d'autres
 stations en duplex. Il peut être intéressant d'étudier cet aspect.
 
 [1]: http://www.pps.univ-paris-diderot.fr/~jch/software/babel/
+[2]: http://tmux.sourceforge.net/
+[3]: http://www.gnu.org/software/screen/
+
+<!--  vim: tw=80:ts=4:spell:spelllang=fr,en
+-->
