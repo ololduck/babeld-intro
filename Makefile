@@ -42,7 +42,7 @@ $(js_dir)/%.js: js/%.js
 
 $(build_dir)/%.png: %.dot
 	@echo "Compiling $< to $@"
-	@circo -Tpng -o$@ $<
+	@fdp -Tpng -o$@ $<
 
 $(build_dir)/%.png: %.png
 	@echo "Compiling $< to $@"
