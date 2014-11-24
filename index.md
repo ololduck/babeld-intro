@@ -87,7 +87,7 @@ utiliserons une configuration IP manuelle.  <!-- TODO: réécrire ça avec iw et
 Pour commencer, nous allons configurer les interfaces participant au mesh sur
 les stations `A`, `B` et `C`:
 
-```bash
+```sh
 ifconfig wlan0 down
 iwconfig wlan0 mode ad-hoc essid babel-mesh
 iwconfig wlan0 channel 1 ap ca:fe:ca:fe:ca:fe
@@ -140,9 +140,7 @@ Nous allons écrire un fichier de configuration, `/etc/babeld.conf`:
 Pour ceci, nous allons executer dans une des fenêtres disponibles la commande
 suivante:
 
-```
-sudo babeld -d2 -c /etc/babeld.conf wlp2s0
-```
+    sudo babeld -d2 -c /etc/babeld.conf wlp2s0
 
 Pour commencer, nous avons besoin d'être en root afin de laisser à babeld le pouvoir
 de modifier les tables de routage. Nous lançons babeld avec le paramètre `-d2`
@@ -169,7 +167,47 @@ machines, changeant la topologie du réseau, afin de voir les changements dans
 les tables de routage. Les temps de convergence du réseau sont également très
 intéressant à observer ( < 1 minute).
 
+## Ajout d'une gestion de protocole DHCP via `ahcp`
 
+### `AHCP`: le DHCP pour les réseau meshés ad-hoc
+
+Le DHCP est utilisé dans les réseaux en étoile pour attribuer des adresses IP
+automatiquement en fonction des adresses disponibles. Il repose sur un message
+envoyé en broadcast sur le réseau par la machine cliente, auquel répondra un
+serveur DHCP, entamant la négociation du bail d'adresse.
+
+Ce mécanisme est plus compliqué dans le cadre d'un réseau meshé, de part
+l'absence de mécanisme de broadcast au niveau du lien simple.
+
+C'est pour ça que le créateur de babel, [Juliusz Chroboczek][4], a créé le
+protocole AHCP, et une implémentation de référence, `ahcpd`.
+
+### Installation et configuration d'`ahcpd`
+
+Installer ahcpd via votre méthode favorite. Nous allons écrire un fichier de
+configuration:
+
+``` sh
+mode server
+lease-dir /var/lib/ahcpd-leases/
+prefix 192.168.0.128/25
+name-server 8.8.8.8  # here, we use google DNS. Do not do that in a real setup
+ntp-server 129.250.35.251 # a NTP server running on the bridge would be
+                          # preferable
+
+```
+
+Le fichier est assez simple à comprendre. Notons toutefois que les droits
+d'accès au répertoire spécifié par `lease-dir` doivent permettre à l'utilisateur
+lançant ahcpd d'y accéder en lecture et écriture.
+
+Il est également important de noter la présence d'une annonce de serveur NTP. Il
+est très important pour la redistribution des routes que toutes les machines
+concernées aient la même horloge, pour des raisons évidentes de mise à jour de
+routes.
+
+Une fois lancé, il est intéressant d'observer les messages échangés, par exemple
+via wireshark.
 
 <!-- footer -->
 ## Aller plus loin
@@ -180,6 +218,7 @@ stations en duplex. Il peut être intéressant d'étudier cet aspect.
 [1]: http://www.pps.univ-paris-diderot.fr/~jch/software/babel/
 [2]: http://tmux.sourceforge.net/
 [3]: http://www.gnu.org/software/screen/
+[4]: http://www.pps.univ-paris-diderot.fr/~jch/
 
 <!--  vim: tw=80:ts=4:spell:spelllang=fr,en
 -->

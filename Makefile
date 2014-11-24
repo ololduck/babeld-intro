@@ -18,10 +18,12 @@ js_dir     := $(build_dir)/js
 graphs_png := $(addprefix $(build_dir)/,${graphs:.dot=.png})
 images_out := $(addprefix $(build_dir)/,$(images))
 out_html   := $(addprefix $(build_dir)/,${md:%.md=%.html})
+out_pdf    := $(addprefix $(build_dir)/,babeld-intro.pdf)
 
 all: ensure_build_dirs $(addprefix $(build_dir)/,$(js))\
 	     $(addprefix $(build_dir)/,$(css))\
-	     $(images_out) $(graphs_png) $(out_html) 
+	     $(images_out) $(graphs_png) $(out_html)\
+		 $(out_pdf)
 
 $(build_dir)/%.html: %.md
 	@echo "Compiling $< to $@"
@@ -51,6 +53,11 @@ $(build_dir)/%.png: %.png
 $(build_dir)/%.jpg: %.jpg
 	@echo "Compiling $< to $@"
 	@cp $< $@
+
+$(out_pdf): $(out_html)
+	@echo "rendering $< to $@"
+	@wkhtmltopdf -B 10 -T 10 $< $@
+
 
 clean:
 	@rm -rf $(out_html) $(images_png) $(build_dir)
