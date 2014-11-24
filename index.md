@@ -215,6 +215,11 @@ via wireshark.
 Babel est capable d'utiliser deux interfaces pour communiquer avec d'autres
 stations en duplex. Il peut être intéressant d'étudier cet aspect.
 
+De plus, une interface web (babelweb) est disponible, tournant sous node.js, qui
+propose une visualisation de l'état du réseau, et ce que connait du réseau la
+machine faisant tourner l'interface.
+
+
 [1]: http://www.pps.univ-paris-diderot.fr/~jch/software/babel/
 [2]: http://tmux.sourceforge.net/
 [3]: http://www.gnu.org/software/screen/
