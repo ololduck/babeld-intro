@@ -1,8 +1,25 @@
 # Réseaux meshés avec `babeld`
 
-> Auteur: Paul Ollivier <contact@paulollivier.fr>  Date:   2014-09-29
+> Auteur  : Paul Ollivier <contact@paulollivier.fr>  
+> Date    : 2014-09-29  
+> Version : 0.1  
 
 ![Logo Babel](babel.png)
+
+!!! attention
+    Ce document est en version alpha. Ce n'est qu'un guide destiné à la
+    découverte de `babeld`. Certains comportements peuvent être imprévisibles,
+    notement liés aux spécificités des packages propres à la distribution
+    utilisée, aux versions de `babeld`.
+
+    Il est donc important de prendre ces informations pour ce qu'elles sont: un
+    guide non-exhaustif. Il est laissé à la discrétion du lecteur de détecter et
+    corriger lors de ses propres exprériences les comportements non-détaillés
+    dans ce document.
+
+    De plus, si des corrections ou compléments sont ajoutés, vous êtes invités à
+    m'en faire un retour par mail (addresse indiquée au début du présent
+    document), de tels apports seront fortement appréciés.
 
 ## Introduction
 
@@ -74,6 +91,7 @@ les stations `A`, `B` et `C`:
 ifconfig wlan0 down
 iwconfig wlan0 mode ad-hoc essid babel-mesh
 iwconfig wlan0 channel 1 ap ca:fe:ca:fe:ca:fe
+iwconfig wlan0 rts 512
 ```
 
 Remarquons l'usage d'`ap ca:fe:ca:fe:ca:fe` afin de définir la cellule que nous
@@ -97,7 +115,60 @@ terminal, comme [`tmux`][2] ou [`screen`][3]. Notons que la commande `watch -d`
 permet de surligner les différences entre deux exécutions de la commande passée
 en paramètre. Il est ainsi recommandé de surveiller au moins la commande `ip r`,
 qui affiche les routes, ainsi que leurs états. `ip a s wlan0` affiche des
-détails sur l'interface.
+détails sur l'interface, il peut être intéressant de la surveiller aussi.
+En voici un exemple (note: ici, `wlp2s0` désigne mon interface wifi principale): 
+![Exemple d'interface utile](screen_multiterm.png)
+
+### Lancement de `babeld`
+
+#### Prérequis
+
+Il faut disposer d'une version de `babeld` >= 1.5.0. Il est recommandé d'utiliser les
+packages Debian (version *jessie* recommandée).
+
+#### Configuration
+
+Nous allons écrire un fichier de configuration, `/etc/babeld.conf`:
+
+    interface wlan0  # We want babeld to listen on this interface.
+                     # Put a new interface directive for each interface 
+                     # needed.
+    redistribute proto 3 ip 0.0.0.0/0 metric 128  # We arbitrarly choose a
+                                                  # metric for the default
+                                                  # route
+
+Pour ceci, nous allons executer dans une des fenêtres disponibles la commande
+suivante:
+
+```
+sudo babeld -d2 -c /etc/babeld.conf wlp2s0
+```
+
+Pour commencer, nous avons besoin d'être en root afin de laisser à babeld le pouvoir
+de modifier les tables de routage. Nous lançons babeld avec le paramètre `-d2`
+pour bénéficier de messages de logs bien plus verbeux que son mode d'exécution
+habituel. Enfin, nous lui indiquons via l'option `-c` le fichier de
+configuration à utiliser.
+
+Pour la machine `A`, connectée à internet, vérifier la présence d'une route par
+défaut via la commande `ip r`.
+
+!!! note
+    Il est important de noter qu'un usage de babeld en mode daemon, via par
+    exemple les initscripts SysVInit peu donner lieu à une configuration plus
+    spécifique. Par exemple, l'interface se définira plutôt via variable
+    d'environnement passée par le script `/etc/init.d/babeld`, qui se charge lui
+    d'invoquer `babeld`.
+
+Répéter cette opération sur les autres machines. Si tout se passe bien, la table
+de routage de chacune de ces machines devrait se remplir, Avec les adresses des
+autres machines présentes dans le réseau, et avec la route par défaut.
+
+Il peut être intéressant à ce stade de se déplacer physiquement avec les
+machines, changeant la topologie du réseau, afin de voir les changements dans
+les tables de routage. Les temps de convergence du réseau sont également très
+intéressant à observer ( < 1 minute).
+
 
 
 <!-- footer -->
